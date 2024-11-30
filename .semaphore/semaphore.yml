@@ -4,7 +4,7 @@ name: Pipeline CI/CD completa
 
 agent:
   machine:
-    type: e1-standard-2
+    type: e1-standard
     os_image: ubuntu1804
 
 blocks:
@@ -56,5 +56,4 @@ blocks:
           commands:
             - checkout
             - artifact pull build.tar.gz
-            - tar -xzf build.tar.gz
-            - ./deploy-prod.sh
+            - tar
