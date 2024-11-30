@@ -2,6 +2,11 @@ version: v1.0
 
 name: Pipeline CI/CD completa
 
+agent:
+  machine:
+    type: e1-standard-2
+    os_image: ubuntu2204
+
 blocks:
   - name: Instalar Dependências
     task:
@@ -9,9 +14,9 @@ blocks:
         - name: Instalar Dependências
           commands:
             - checkout
-            - cache restore
+            - cache restore npm-dependencies
             - npm install
-            - cache store
+            - cache store npm-dependencies
 
   - name: Rodar Testes
     task:
@@ -19,7 +24,7 @@ blocks:
         - name: Testes Unitários
           commands:
             - checkout
-            - cache restore
+            - cache restore npm-dependencies
             - npm run test
 
   - name: Build do Aplicativo
@@ -28,16 +33,14 @@ blocks:
         - name: Build
           commands:
             - checkout
-            - cache restore
+            - cache restore npm-dependencies
             - npm run build
             - tar -czf build.tar.gz ./build
-            - cache store
+            - cache store build-cache
             - artifact push build.tar.gz
 
   - name: Deploy para Staging
     task:
-      requires:
-        - Build do Aplicativo
       jobs:
         - name: Deploy Staging
           commands:
@@ -48,8 +51,6 @@ blocks:
 
   - name: Deploy para Produção
     task:
-      requires:
-        - Deploy para Staging
       jobs:
         - name: Deploy Produção
           commands:
@@ -57,8 +58,3 @@ blocks:
             - artifact pull build.tar.gz
             - tar -xzf build.tar.gz
             - ./deploy-prod.sh
-
-promotion:
-  - name: Aprovar Deploy para Produção
-    pipeline_file: .semaphore/semaphore.yml
-    auto_promote: false
