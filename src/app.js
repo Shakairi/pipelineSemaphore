@@ -12,7 +12,7 @@ class Calculator {
   }
 
   static divide(a, b) {
-    if (b === 0) throw new Error('Divisão pro 0 não pode');
+    if (b === 0) throw new Error('Divisão pro 0 não pode teste');
     return a / b;
   }
 }
