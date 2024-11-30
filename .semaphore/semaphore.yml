@@ -2,10 +2,11 @@ version: v1.0
 
 name: Pipeline CI/CD completa
 
+# Agente padrão com máquina e imagem suportadas
 agent:
   machine:
-    type: e1-standard-2
-    os_image: ubuntu2204
+    type: e1-standard
+    os_image: ubuntu20.04
 
 blocks:
   - name: Instalar Dependências
