@@ -1,20 +1,60 @@
 version: v1.0
 
-name: Pipeline CI/CD básica
+name: Pipeline CI/CD completa
 
 agent:
   machine:
-    type: e1-small
-    os_image: ubuntu1804
+    type: e1-standard
+    os_image: ubuntu20.04
 
 blocks:
-  - name: Instalar Dependências e Rodar Testes
+  - name: Instalar Dependências
+    task:
+      jobs:
+        - name: Instalar Dependências
+          commands:
+            - checkout
+            - cache restore npm-dependencies
+            - npm install
+            - cache store npm-dependencies
+
+  - name: Rodar Testes
     task:
       jobs:
         - name: Testes Unitários
           commands:
             - checkout
-            - echo "Instalando dependências..."
-            - npm install
-            - echo "Executando testes..."
-            - npm test
+            - cache restore npm-dependencies
+            - npm run test
+
+  - name: Build do Aplicativo
+    task:
+      jobs:
+        - name: Build
+          commands:
+            - checkout
+            - cache restore npm-dependencies
+            - npm run build
+            - tar -czf build.tar.gz ./build
+            - cache store build-cache
+            - artifact push build.tar.gz
+
+  - name: Deploy para Staging
+    task:
+      jobs:
+        - name: Deploy Staging
+          commands:
+            - checkout
+            - artifact pull build.tar.gz
+            - tar -xzf build.tar.gz
+            - ./deploy-staging.sh
+
+  - name: Deploy para Produção
+    task:
+      jobs:
+        - name: Deploy Produção
+          commands:
+            - checkout
+            - artifact pull build.tar.gz
+            - tar -xzf build.tar.gz
+            - ./deploy-prod.sh
