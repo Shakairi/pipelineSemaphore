@@ -1,0 +1,64 @@
+version: v1.0
+
+name: Pipeline CI/CD completa
+
+blocks:
+  - name: Instalar Dependências
+    task:
+      jobs:
+        - name: Instalar Dependências
+          commands:
+            - checkout
+            - cache restore
+            - npm install
+            - cache store
+
+  - name: Rodar Testes
+    task:
+      jobs:
+        - name: Testes Unitários
+          commands:
+            - checkout
+            - cache restore
+            - npm run test
+
+  - name: Build do Aplicativo
+    task:
+      jobs:
+        - name: Build
+          commands:
+            - checkout
+            - cache restore
+            - npm run build
+            - tar -czf build.tar.gz ./build
+            - cache store
+            - artifact push build.tar.gz
+
+  - name: Deploy para Staging
+    task:
+      requires:
+        - Build do Aplicativo
+      jobs:
+        - name: Deploy Staging
+          commands:
+            - checkout
+            - artifact pull build.tar.gz
+            - tar -xzf build.tar.gz
+            - ./deploy-staging.sh
+
+  - name: Deploy para Produção
+    task:
+      requires:
+        - Deploy para Staging
+      jobs:
+        - name: Deploy Produção
+          commands:
+            - checkout
+            - artifact pull build.tar.gz
+            - tar -xzf build.tar.gz
+            - ./deploy-prod.sh
+
+promotion:
+  - name: Aprovar Deploy para Produção
+    pipeline_file: .semaphore/semaphore.yml
+    auto_promote: false
