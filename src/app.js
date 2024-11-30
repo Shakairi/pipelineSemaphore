@@ -1,14 +1,20 @@
-const express = require('express');
-const app = express();
+class Calculator {
+  static add(a, b) {
+    return a + b;
+  }
 
-const PORT = process.env.PORT || 3000;
+  static subtract(a, b) {
+    return a - b;
+  }
 
-app.get('/', (req, res) => {
-  res.json({ message: 'Hello, World!' });
-});
+  static multiply(a, b) {
+    return a * b;
+  }
 
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+  static divide(a, b) {
+    if (b === 0) throw new Error('Divisão pro 0 não pode');
+    return a / b;
+  }
+}
 
-module.exports = app;
+module.exports = Calculator;
