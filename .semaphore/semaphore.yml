@@ -4,15 +4,17 @@ name: Pipeline CI/CD básica
 
 agent:
   machine:
-    type: e1-standard
-    os_image: ubuntu2004
+    type: e1-small
+    os_image: ubuntu1804
 
 blocks:
-  - name: Teste Básico
+  - name: Instalar Dependências e Rodar Testes
     task:
       jobs:
-        - name: Instalar e Testar
+        - name: Testes Unitários
           commands:
             - checkout
+            - echo "Instalando dependências..."
             - npm install
+            - echo "Executando testes..."
             - npm test
